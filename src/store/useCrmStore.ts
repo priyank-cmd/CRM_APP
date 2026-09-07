@@ -61,7 +61,11 @@ export const useCrmStore = create<CrmState>()(
     }),
     {
       name: 'leadspot-crm-data',
-      version: 1,
+      version: 2,
+      // v1 -> v2: deal values moved from USD to INR magnitude, so old
+      // persisted USD-scale amounts would render as wrong-magnitude rupees.
+      migrate: (_persisted, version) =>
+        version < 2 ? { leads: generateMockLeads() } : (_persisted as CrmState),
     },
   ),
 )

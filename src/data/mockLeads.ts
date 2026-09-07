@@ -110,8 +110,9 @@ export function generateMockLeads(count = 68): Lead[] {
       : Math.floor(random() * Math.min(ageDays, 14) * (1 - stageDepth * 0.08))
     const lastActivity = daysAgo(Math.max(0, ageDays - activityOffset - Math.floor(random() * 5)))
 
-    const baseValue = 1500 + Math.floor(Math.pow(random(), 1.4) * 43500)
-    const value = Math.round(baseValue / 100) * 100
+    // Deal sizes in INR, roughly ₹25k to ₹18L, skewed toward the smaller end.
+    const baseValue = 25_000 + Math.floor(Math.pow(random(), 1.4) * 1_775_000)
+    const value = Math.round(baseValue / 1000) * 1000
 
     leads.push({
       id: `lead-${i + 1}`,

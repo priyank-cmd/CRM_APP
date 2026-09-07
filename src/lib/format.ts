@@ -1,6 +1,6 @@
-const currencyFormatter = new Intl.NumberFormat('en-US', {
+const currencyFormatter = new Intl.NumberFormat('en-IN', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'INR',
   maximumFractionDigits: 0,
 })
 
@@ -8,10 +8,12 @@ export function formatCurrency(value: number): string {
   return currencyFormatter.format(value)
 }
 
+// Indian numbering: thousand -> lakh (1,00,000) -> crore (1,00,00,000).
 export function formatCompactCurrency(value: number): string {
-  if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
-  if (value >= 1_000) return `$${(value / 1_000).toFixed(1)}k`
-  return `$${value}`
+  if (value >= 1_00_00_000) return `₹${(value / 1_00_00_000).toFixed(1)}Cr`
+  if (value >= 1_00_000) return `₹${(value / 1_00_000).toFixed(1)}L`
+  if (value >= 1_000) return `₹${(value / 1_000).toFixed(1)}k`
+  return `₹${value}`
 }
 
 export function formatDate(iso: string): string {

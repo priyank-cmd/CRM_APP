@@ -210,7 +210,7 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className={labelClass}>Deal value (USD)</label>
+              <label className={labelClass}>Deal value (INR)</label>
               <input
                 type="number"
                 min={0}
@@ -218,7 +218,7 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
                 className={`${inputClass} tabular`}
                 value={form.value}
                 onChange={(e) => setForm({ ...form, value: e.target.value })}
-                placeholder="12000"
+                placeholder="150000"
               />
             </div>
             <div>
