@@ -70,6 +70,8 @@ export interface SegmentRule {
   field: string
   operator: string
   value: string
+  // Second bound, only used by the "between" operator.
+  value2?: string
 }
 
 export interface Segment {

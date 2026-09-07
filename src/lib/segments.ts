@@ -31,25 +31,59 @@ export function getAllFields(customProperties: PropertyDef[]): FieldDef[] {
   ]
 }
 
-export const OPERATORS_BY_TYPE: Record<PropertyType, { value: string; label: string }[]> = {
+export interface OperatorDef {
+  value: string
+  label: string
+  needsValue: boolean
+  multi?: boolean
+  range?: boolean
+}
+
+export const OPERATORS_BY_TYPE: Record<PropertyType, OperatorDef[]> = {
   text: [
-    { value: 'contains', label: 'contains' },
-    { value: 'equals', label: 'is exactly' },
+    { value: 'contains', label: 'contains', needsValue: true },
+    { value: 'notContains', label: "doesn't contain", needsValue: true },
+    { value: 'equals', label: 'is exactly', needsValue: true },
+    { value: 'isKnown', label: 'is known', needsValue: false },
+    { value: 'isUnknown', label: 'is unknown', needsValue: false },
   ],
   number: [
-    { value: 'eq', label: '=' },
-    { value: 'gt', label: '>' },
-    { value: 'lt', label: '<' },
+    { value: 'eq', label: '=', needsValue: true },
+    { value: 'neq', label: '≠', needsValue: true },
+    { value: 'gt', label: '>', needsValue: true },
+    { value: 'lt', label: '<', needsValue: true },
+    { value: 'between', label: 'is between', needsValue: true, range: true },
+    { value: 'isKnown', label: 'is known', needsValue: false },
+    { value: 'isUnknown', label: 'is unknown', needsValue: false },
   ],
   select: [
-    { value: 'is', label: 'is' },
-    { value: 'isNot', label: 'is not' },
+    { value: 'anyOf', label: 'is any of', needsValue: true, multi: true },
+    { value: 'noneOf', label: 'is none of', needsValue: true, multi: true },
+    { value: 'isKnown', label: 'is known', needsValue: false },
+    { value: 'isUnknown', label: 'is unknown', needsValue: false },
   ],
-  boolean: [{ value: 'is', label: 'is' }],
+  boolean: [{ value: 'is', label: 'is', needsValue: true }],
   date: [
-    { value: 'before', label: 'before' },
-    { value: 'after', label: 'after' },
+    { value: 'before', label: 'before', needsValue: true },
+    { value: 'after', label: 'after', needsValue: true },
+    { value: 'between', label: 'is between', needsValue: true, range: true },
+    { value: 'isKnown', label: 'is known', needsValue: false },
+    { value: 'isUnknown', label: 'is unknown', needsValue: false },
   ],
+}
+
+export function getOperator(type: PropertyType, operator: string): OperatorDef | undefined {
+  return OPERATORS_BY_TYPE[type].find((op) => op.value === operator)
+}
+
+export function ruleIsValid(rule: SegmentRule, fields: FieldDef[]): boolean {
+  const field = fields.find((f) => f.key === rule.field)
+  if (!field) return false
+  const opDef = getOperator(field.type, rule.operator)
+  if (!opDef) return false
+  if (!opDef.needsValue) return true
+  if (opDef.range) return rule.value !== '' && !!rule.value2 && rule.value2 !== ''
+  return rule.value !== ''
 }
 
 function getFieldValue(lead: Lead, key: string): string | number | boolean | undefined {
@@ -80,32 +114,49 @@ function getFieldValue(lead: Lead, key: string): string | number | boolean | und
 
 export function evaluateRule(lead: Lead, rule: SegmentRule, fields: FieldDef[]): boolean {
   const field = fields.find((f) => f.key === rule.field)
-  if (!field || rule.value === '') return true
+  if (!field) return true
   const value = getFieldValue(lead, rule.field)
+  const isEmpty = value === undefined || value === null || value === ''
+
+  if (rule.operator === 'isKnown') return !isEmpty
+  if (rule.operator === 'isUnknown') return isEmpty
 
   switch (field.type) {
     case 'text': {
       const sv = String(value ?? '').toLowerCase()
       const rv = rule.value.toLowerCase()
-      return rule.operator === 'equals' ? sv === rv : sv.includes(rv)
+      if (rule.operator === 'equals') return sv === rv
+      if (rule.operator === 'notContains') return !sv.includes(rv)
+      return sv.includes(rv)
     }
     case 'number': {
       if (typeof value !== 'number') return false
+      if (rule.operator === 'between') {
+        const min = Number(rule.value)
+        const max = Number(rule.value2)
+        return value >= Math.min(min, max) && value <= Math.max(min, max)
+      }
       const rv = Number(rule.value)
+      if (rule.operator === 'neq') return value !== rv
       if (rule.operator === 'gt') return value > rv
       if (rule.operator === 'lt') return value < rv
       return value === rv
     }
     case 'select': {
       const sv = String(value ?? '')
-      return rule.operator === 'isNot' ? sv !== rule.value : sv === rule.value
+      const selected = rule.value.split(',').filter(Boolean)
+      const included = selected.includes(sv)
+      return rule.operator === 'noneOf' ? !included : included
     }
-    case 'boolean': {
+    case 'boolean':
       return Boolean(value) === (rule.value === 'true')
-    }
     case 'date': {
       const sv = String(value ?? '')
       if (!sv) return false
+      if (rule.operator === 'between') {
+        const [lo, hi] = [rule.value, rule.value2 ?? rule.value].sort()
+        return sv >= lo && sv <= hi
+      }
       return rule.operator === 'after' ? sv > rule.value : sv < rule.value
     }
     default:
