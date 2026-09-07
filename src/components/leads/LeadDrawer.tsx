@@ -22,6 +22,7 @@ interface FormState {
   value: string
   owner: string
   notes: string
+  customFields: Record<string, string>
 }
 
 const EMPTY_FORM: FormState = {
@@ -35,12 +36,14 @@ const EMPTY_FORM: FormState = {
   value: '',
   owner: OWNERS[0],
   notes: '',
+  customFields: {},
 }
 
 export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProps) {
   const addLead = useCrmStore((s) => s.addLead)
   const updateLead = useCrmStore((s) => s.updateLead)
   const deleteLead = useCrmStore((s) => s.deleteLead)
+  const customProperties = useCrmStore((s) => s.customProperties)
   const [form, setForm] = useState(EMPTY_FORM)
 
   useEffect(() => {
@@ -56,16 +59,33 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
         value: String(lead.value),
         owner: lead.owner,
         notes: lead.notes,
+        customFields: Object.fromEntries(
+          customProperties.map((prop) => [prop.id, String(lead.customFields[prop.id] ?? '')]),
+        ),
       })
     } else {
-      setForm({ ...EMPTY_FORM, stage: defaultStage ?? 'New' })
+      setForm({
+        ...EMPTY_FORM,
+        stage: defaultStage ?? 'New',
+        customFields: Object.fromEntries(customProperties.map((prop) => [prop.id, ''])),
+      })
     }
-  }, [lead, defaultStage, open])
+  }, [lead, defaultStage, open, customProperties])
 
   if (!open) return null
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+
+    const customFields: Record<string, string | number | boolean> = {}
+    for (const prop of customProperties) {
+      const raw = form.customFields[prop.id]
+      if (raw === undefined || raw === '') continue
+      if (prop.type === 'number') customFields[prop.id] = Number(raw)
+      else if (prop.type === 'boolean') customFields[prop.id] = raw === 'true'
+      else customFields[prop.id] = raw
+    }
+
     const payload = {
       name: form.name.trim(),
       title: form.title.trim(),
@@ -77,6 +97,7 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
       value: Number(form.value) || 0,
       owner: form.owner,
       notes: form.notes,
+      customFields,
     }
     if (!payload.name || !payload.company) return
 
@@ -246,6 +267,67 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
               placeholder="Context on this deal…"
             />
           </div>
+
+          {customProperties.length > 0 && (
+            <div className="space-y-4 border-t border-hairline pt-4">
+              <div className="text-xs font-medium text-ink-soft">Custom properties</div>
+              {customProperties.map((prop) => {
+                const rawValue = form.customFields[prop.id] ?? ''
+                const setValue = (v: string) =>
+                  setForm({ ...form, customFields: { ...form.customFields, [prop.id]: v } })
+
+                if (prop.type === 'boolean') {
+                  return (
+                    <label key={prop.id} className="flex items-center gap-2 text-sm text-ink-soft">
+                      <input
+                        type="checkbox"
+                        checked={rawValue === 'true'}
+                        onChange={(e) => setValue(e.target.checked ? 'true' : 'false')}
+                      />
+                      {prop.label}
+                    </label>
+                  )
+                }
+
+                return (
+                  <div key={prop.id}>
+                    <label className={labelClass}>{prop.label}</label>
+                    {prop.type === 'select' ? (
+                      <select className={inputClass} value={rawValue} onChange={(e) => setValue(e.target.value)}>
+                        <option value="">—</option>
+                        {prop.options?.map((o) => (
+                          <option key={o} value={o}>
+                            {o}
+                          </option>
+                        ))}
+                      </select>
+                    ) : prop.type === 'date' ? (
+                      <input
+                        type="date"
+                        className={inputClass}
+                        value={rawValue}
+                        onChange={(e) => setValue(e.target.value)}
+                      />
+                    ) : prop.type === 'number' ? (
+                      <input
+                        type="number"
+                        className={`${inputClass} tabular`}
+                        value={rawValue}
+                        onChange={(e) => setValue(e.target.value)}
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        className={inputClass}
+                        value={rawValue}
+                        onChange={(e) => setValue(e.target.value)}
+                      />
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
 
           {lead && (
             <div className="rounded-md bg-paper px-3 py-2 text-xs text-ink-mute">

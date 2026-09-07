@@ -128,6 +128,7 @@ export function generateMockLeads(count = 68): Lead[] {
       createdAt: isoDate(createdAt),
       lastActivity: isoDate(lastActivity),
       notes: '',
+      customFields: {},
     })
   }
 

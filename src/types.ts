@@ -43,6 +43,7 @@ export interface Lead {
   createdAt: string
   lastActivity: string
   notes: string
+  customFields: Record<string, string | number | boolean>
 }
 
 export const OWNERS = [
@@ -52,3 +53,27 @@ export const OWNERS = [
   'Priya Nair',
   'Theo Brandt',
 ] as const
+
+// User-defined properties on leads.
+export type PropertyType = 'text' | 'number' | 'select' | 'boolean' | 'date'
+
+export interface PropertyDef {
+  id: string
+  label: string
+  type: PropertyType
+  options?: string[]
+}
+
+// Saved, reusable filters ("segments") built from built-in and custom fields.
+export interface SegmentRule {
+  id: string
+  field: string
+  operator: string
+  value: string
+}
+
+export interface Segment {
+  id: string
+  name: string
+  rules: SegmentRule[]
+}
