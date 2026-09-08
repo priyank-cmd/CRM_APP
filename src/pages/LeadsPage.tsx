@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
-import { Download, Pencil, Plus, Search, Settings2, Trash2, Upload } from 'lucide-react'
+import { Download, Plus, Search, Settings2, Upload } from 'lucide-react'
 import { AppShell } from '../components/layout/AppShell'
 import { StageBadge } from '../components/ui/StageBadge'
 import { Avatar } from '../components/ui/Avatar'
 import { LeadDrawer } from '../components/leads/LeadDrawer'
 import { PropertiesModal } from '../components/leads/PropertiesModal'
 import { SegmentBuilderModal } from '../components/leads/SegmentBuilderModal'
+import { SegmentPillBar } from '../components/leads/SegmentPillBar'
 import { ImportCsvModal } from '../components/leads/ImportCsvModal'
 import { useCrmStore } from '../store/useCrmStore'
 import { OWNERS, SOURCES, STAGES, type Lead, type Segment } from '../types'
@@ -19,7 +20,6 @@ export function LeadsPage() {
   const leads = useCrmStore((s) => s.leads)
   const customProperties = useCrmStore((s) => s.customProperties)
   const segments = useCrmStore((s) => s.segments)
-  const deleteSegment = useCrmStore((s) => s.deleteSegment)
 
   const [query, setQuery] = useState('')
   const [stageFilter, setStageFilter] = useState<string>('All')
@@ -73,10 +73,6 @@ export function LeadsPage() {
     'rounded-md border border-hairline bg-surface px-3 py-2 text-sm text-ink-soft outline-none focus:border-amber'
   const secondaryButton =
     'flex items-center gap-1.5 rounded-md border border-hairline px-3.5 py-2.5 text-sm text-ink-soft hover:bg-paper'
-  const pillClass = (active: boolean) =>
-    `rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-      active ? 'bg-amber text-white' : 'border border-hairline bg-surface text-ink-soft hover:border-hairline-strong'
-    }`
 
   return (
     <AppShell
@@ -102,51 +98,18 @@ export function LeadsPage() {
         </div>
       }
     >
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <button onClick={() => setActiveSegmentId(null)} className={pillClass(activeSegmentId === null)}>
-          All leads
-        </button>
-        {segments.map((segment) => (
-          <div key={segment.id} className="flex items-center gap-1">
-            <button onClick={() => setActiveSegmentId(segment.id)} className={pillClass(activeSegmentId === segment.id)}>
-              {segment.name}
-            </button>
-            {activeSegmentId === segment.id && (
-              <>
-                <button
-                  onClick={() => {
-                    setEditingSegment(segment)
-                    setSegmentModalOpen(true)
-                  }}
-                  className="rounded p-1 text-ink-mute hover:bg-paper hover:text-ink"
-                  aria-label={`Edit ${segment.name}`}
-                >
-                  <Pencil size={12} />
-                </button>
-                <button
-                  onClick={() => {
-                    deleteSegment(segment.id)
-                    setActiveSegmentId(null)
-                  }}
-                  className="rounded p-1 text-ink-mute hover:bg-critical-tint hover:text-critical"
-                  aria-label={`Delete ${segment.name}`}
-                >
-                  <Trash2 size={12} />
-                </button>
-              </>
-            )}
-          </div>
-        ))}
-        <button
-          onClick={() => {
-            setEditingSegment(null)
-            setSegmentModalOpen(true)
-          }}
-          className="flex items-center gap-1 rounded-full border border-dashed border-hairline-strong px-3 py-1.5 text-xs text-ink-mute hover:border-amber hover:text-amber-strong"
-        >
-          <Plus size={12} /> New segment
-        </button>
-      </div>
+      <SegmentPillBar
+        activeSegmentId={activeSegmentId}
+        onSelect={setActiveSegmentId}
+        onCreate={() => {
+          setEditingSegment(null)
+          setSegmentModalOpen(true)
+        }}
+        onEdit={(segment) => {
+          setEditingSegment(segment)
+          setSegmentModalOpen(true)
+        }}
+      />
 
       <div className="mb-5 flex flex-wrap items-center gap-2.5">
         <div className="relative">
