@@ -14,18 +14,18 @@ export function RepLeaderboard({ data }: { data: RepPerformance[] }) {
           width={104}
           tickLine={false}
           axisLine={false}
-          tick={{ fill: '#565c66', fontSize: 12.5 }}
+          tick={{ fill: 'var(--color-ink-soft)', fontSize: 12.5 }}
         />
         <Tooltip
-          cursor={{ fill: 'rgba(11,11,11,0.03)' }}
+          cursor={{ fill: 'var(--chart-cursor)' }}
           content={<ChartTooltip formatter={(v) => formatCurrency(Number(v))} />}
         />
-        <Bar dataKey="wonValue" name="Won value" fill="#2a78d6" radius={[0, 4, 4, 0]} maxBarSize={18}>
+        <Bar dataKey="wonValue" name="Won value" fill="var(--color-series-blue)" radius={[0, 4, 4, 0]} maxBarSize={18}>
           <LabelList
             dataKey="wonValue"
             position="right"
             formatter={(v) => formatCompactCurrency(Number(v))}
-            style={{ fill: '#565c66', fontSize: 11.5, fontWeight: 500 }}
+            style={{ fill: 'var(--color-ink-soft)', fontSize: 11.5, fontWeight: 500 }}
           />
         </Bar>
       </BarChart>

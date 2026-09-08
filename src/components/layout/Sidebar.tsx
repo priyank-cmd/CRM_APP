@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useCrmStore } from '../../store/useCrmStore'
 import { computeKpis } from '../../lib/analytics'
 import { formatCompactCurrency } from '../../lib/format'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 const NAV_ITEMS = [
   { to: '/leads', label: 'Leads', icon: Rows3 },
@@ -16,9 +17,12 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col bg-indigo text-indigo-text">
-      <div className="px-6 pt-8 pb-6">
-        <div className="font-display text-2xl font-medium tracking-tight text-white">Leadspot</div>
-        <div className="mt-0.5 text-[11px] text-indigo-text/80">Sales CRM</div>
+      <div className="flex items-start justify-between px-6 pt-8 pb-6">
+        <div>
+          <div className="font-display text-2xl font-medium tracking-tight text-white">Leadspot</div>
+          <div className="mt-0.5 text-[11px] text-indigo-text/80">Sales CRM</div>
+        </div>
+        <ThemeToggle />
       </div>
 
       <nav className="flex flex-col gap-1 px-3">

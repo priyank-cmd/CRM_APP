@@ -1,9 +1,9 @@
 import type { StatusSplit } from '../../lib/analytics'
 
 const SEGMENTS: { key: keyof StatusSplit; label: string; color: string }[] = [
-  { key: 'won', label: 'Won', color: '#2f7a4d' },
-  { key: 'open', label: 'Open', color: '#c3c2b7' },
-  { key: 'lost', label: 'Lost', color: '#b3403d' },
+  { key: 'won', label: 'Won', color: 'var(--color-good)' },
+  { key: 'open', label: 'Open', color: 'var(--color-hairline-strong)' },
+  { key: 'lost', label: 'Lost', color: 'var(--color-critical)' },
 ]
 
 export function StatusSplitBar({ data }: { data: StatusSplit }) {

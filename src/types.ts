@@ -47,11 +47,11 @@ export interface Lead {
 }
 
 export const OWNERS = [
-  'Maya Chen',
-  'Jordan Ruiz',
-  'Sam Okafor',
   'Priya Nair',
-  'Theo Brandt',
+  'Arjun Mehta',
+  'Ananya Iyer',
+  'Rohan Kapoor',
+  'Divya Deshmukh',
 ] as const
 
 // User-defined properties on leads.

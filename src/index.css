@@ -1,6 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&display=swap");
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
@@ -35,6 +37,105 @@
   --color-series-violet: #4a3aa7;
 }
 
+/* Dark mode: its own tuned palette (not an inverted flip). Redefining the
+   same custom properties here means every color utility above, plus any
+   var(--color-*) reference in chart/badge code, updates automatically
+   when the .dark class is toggled — no dark: variants needed. */
+:root {
+  color-scheme: light;
+  --chart-cursor: rgba(11, 11, 11, 0.03);
+  --chart-funnel-1: #86b6ef;
+  --chart-funnel-2: #6da7ec;
+  --chart-funnel-3: #5598e7;
+  --chart-funnel-4: #3987e5;
+  --chart-funnel-5: #2a78d6;
+  --chart-funnel-6: #256abf;
+
+  --stage-new-bg: #eceeea;
+  --stage-new-text: #4a4d47;
+  --stage-new-dot: #8b8f96;
+  --stage-contacted-bg: #e4eefa;
+  --stage-contacted-text: #1b4c82;
+  --stage-contacted-dot: #2a78d6;
+  --stage-qualified-bg: #ece8fa;
+  --stage-qualified-text: #3c3080;
+  --stage-qualified-dot: #4a3aa7;
+  --stage-proposal-bg: #fbf0da;
+  --stage-proposal-text: #8a5e0c;
+  --stage-proposal-dot: #eda100;
+  --stage-negotiation-bg: #fbe6db;
+  --stage-negotiation-text: #93401a;
+  --stage-negotiation-dot: #eb6834;
+  --stage-won-bg: #e5f2e9;
+  --stage-won-text: #215c37;
+  --stage-won-dot: #2f7a4d;
+  --stage-lost-bg: #f8e6e4;
+  --stage-lost-text: #832e2b;
+  --stage-lost-dot: #b3403d;
+}
+
+.dark {
+  color-scheme: dark;
+  --color-paper: #15171e;
+  --color-surface: #1c1f28;
+  --color-ink: #eef0f4;
+  --color-ink-soft: #a8adba;
+  --color-ink-mute: #6f7480;
+  --color-hairline: #2b2f3a;
+  --color-hairline-strong: #3a3f4d;
+
+  --color-indigo: #171e38;
+  --color-indigo-soft: #232c52;
+  --color-indigo-text: #aab2d6;
+
+  --color-amber: #e2952f;
+  --color-amber-strong: #f0ac52;
+  --color-amber-tint: #3a2c15;
+
+  --color-good: #3f9c62;
+  --color-good-tint: #16281d;
+  --color-critical: #d65650;
+  --color-critical-tint: #2e1716;
+
+  --color-series-blue: #3987e5;
+  --color-series-orange: #d95926;
+  --color-series-aqua: #199e70;
+  --color-series-yellow: #c98500;
+  --color-series-magenta: #d55181;
+  --color-series-green: #008300;
+  --color-series-violet: #9085e9;
+
+  --chart-cursor: rgba(255, 255, 255, 0.05);
+  --chart-funnel-1: #cde2fb;
+  --chart-funnel-2: #b7d3f6;
+  --chart-funnel-3: #9ec5f4;
+  --chart-funnel-4: #86b6ef;
+  --chart-funnel-5: #6da7ec;
+  --chart-funnel-6: #5598e7;
+
+  --stage-new-bg: #262a30;
+  --stage-new-text: #b0b4bb;
+  --stage-new-dot: #8b8f96;
+  --stage-contacted-bg: #16273f;
+  --stage-contacted-text: #8ec2fa;
+  --stage-contacted-dot: #3987e5;
+  --stage-qualified-bg: #241d3f;
+  --stage-qualified-text: #b9aef2;
+  --stage-qualified-dot: #9085e9;
+  --stage-proposal-bg: #3a2c10;
+  --stage-proposal-text: #f0c56a;
+  --stage-proposal-dot: #c98500;
+  --stage-negotiation-bg: #3a2013;
+  --stage-negotiation-text: #f5a679;
+  --stage-negotiation-dot: #d95926;
+  --stage-won-bg: #16281d;
+  --stage-won-text: #7fd39a;
+  --stage-won-dot: #3f9c62;
+  --stage-lost-bg: #2e1716;
+  --stage-lost-text: #f19490;
+  --stage-lost-dot: #d65650;
+}
+
 html,
 body,
 #root {
@@ -46,6 +147,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 * {

@@ -3,9 +3,17 @@ import type { FunnelStep } from '../../lib/analytics'
 import { ChartTooltip } from './ChartTooltip'
 import { formatCompactCurrency } from '../../lib/format'
 
-// Ordinal sequential ramp (blue, light -> dark), steps 250-500 from the
-// validated palette — the lightest step still clears 2:1 against the surface.
-const RAMP = ['#86b6ef', '#6da7ec', '#5598e7', '#3987e5', '#2a78d6', '#256abf']
+// Ordinal sequential ramp, one hue getting darker (light mode) or lighter
+// (dark mode) as the funnel narrows — see the --chart-funnel-* pairs in
+// index.css, each tuned to clear contrast against its own surface.
+const RAMP = [
+  'var(--chart-funnel-1)',
+  'var(--chart-funnel-2)',
+  'var(--chart-funnel-3)',
+  'var(--chart-funnel-4)',
+  'var(--chart-funnel-5)',
+  'var(--chart-funnel-6)',
+]
 
 export function FunnelChart({ data }: { data: FunnelStep[] }) {
   return (
@@ -18,10 +26,10 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
           width={92}
           tickLine={false}
           axisLine={false}
-          tick={{ fill: '#565c66', fontSize: 12.5 }}
+          tick={{ fill: 'var(--color-ink-soft)', fontSize: 12.5 }}
         />
         <Tooltip
-          cursor={{ fill: 'rgba(11,11,11,0.03)' }}
+          cursor={{ fill: 'var(--chart-cursor)' }}
           content={
             <ChartTooltip
               formatter={(v) => `${v} leads`}
@@ -36,7 +44,7 @@ export function FunnelChart({ data }: { data: FunnelStep[] }) {
             dataKey="value"
             position="right"
             formatter={(v) => formatCompactCurrency(Number(v))}
-            style={{ fill: '#8b8f96', fontSize: 11 }}
+            style={{ fill: 'var(--color-ink-mute)', fontSize: 11 }}
           />
         </Bar>
       </BarChart>

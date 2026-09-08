@@ -1,20 +1,38 @@
 import type { Stage } from '../types'
 
+// Each value is a CSS custom property defined for both light and dark mode
+// in index.css, so badges stay legible without any JS-side theme branching.
 export const STAGE_STYLES: Record<Stage, { bg: string; text: string; dot: string }> = {
-  New: { bg: '#eceeea', text: '#4a4d47', dot: '#8b8f96' },
-  Contacted: { bg: '#e4eefa', text: '#1b4c82', dot: '#2a78d6' },
-  Qualified: { bg: '#ece8fa', text: '#3c3080', dot: '#4a3aa7' },
-  Proposal: { bg: '#fbf0da', text: '#8a5e0c', dot: '#eda100' },
-  Negotiation: { bg: '#fbe6db', text: '#93401a', dot: '#eb6834' },
-  Won: { bg: '#e5f2e9', text: '#215c37', dot: '#2f7a4d' },
-  Lost: { bg: '#f8e6e4', text: '#832e2b', dot: '#b3403d' },
+  New: { bg: 'var(--stage-new-bg)', text: 'var(--stage-new-text)', dot: 'var(--stage-new-dot)' },
+  Contacted: {
+    bg: 'var(--stage-contacted-bg)',
+    text: 'var(--stage-contacted-text)',
+    dot: 'var(--stage-contacted-dot)',
+  },
+  Qualified: {
+    bg: 'var(--stage-qualified-bg)',
+    text: 'var(--stage-qualified-text)',
+    dot: 'var(--stage-qualified-dot)',
+  },
+  Proposal: {
+    bg: 'var(--stage-proposal-bg)',
+    text: 'var(--stage-proposal-text)',
+    dot: 'var(--stage-proposal-dot)',
+  },
+  Negotiation: {
+    bg: 'var(--stage-negotiation-bg)',
+    text: 'var(--stage-negotiation-text)',
+    dot: 'var(--stage-negotiation-dot)',
+  },
+  Won: { bg: 'var(--stage-won-bg)', text: 'var(--stage-won-text)', dot: 'var(--stage-won-dot)' },
+  Lost: { bg: 'var(--stage-lost-bg)', text: 'var(--stage-lost-text)', dot: 'var(--stage-lost-dot)' },
 }
 
 export const SOURCE_DOT: Record<string, string> = {
-  Referral: '#2a78d6',
-  Website: '#1baf7a',
-  'Cold Outreach': '#8b8f96',
-  Event: '#eda100',
-  Social: '#e87ba4',
-  Partner: '#4a3aa7',
+  Referral: 'var(--color-series-blue)',
+  Website: 'var(--color-series-aqua)',
+  'Cold Outreach': 'var(--color-ink-mute)',
+  Event: 'var(--color-series-yellow)',
+  Social: 'var(--color-series-magenta)',
+  Partner: 'var(--color-series-violet)',
 }

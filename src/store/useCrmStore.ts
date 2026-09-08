@@ -114,9 +114,11 @@ export const useCrmStore = create<CrmState>()(
     }),
     {
       name: 'leadspot-crm-data',
-      version: 3,
+      version: 4,
       // v1 -> v2: deal values moved from USD to INR magnitude.
       // v2 -> v3: leads gained customFields; store gained customProperties/segments.
+      // v3 -> v4: sales rep roster renamed — remap existing owner references
+      // in place rather than regenerating, so real edits/imports survive.
       migrate: (persisted, version) => {
         let state = persisted as Partial<CrmState> & { leads?: Lead[] }
         if (version < 2) {
@@ -131,6 +133,35 @@ export const useCrmStore = create<CrmState>()(
             })),
             customProperties: state.customProperties ?? [],
             segments: state.segments ?? [],
+          }
+        }
+        if (version < 4) {
+          const OWNER_RENAME: Record<string, string> = {
+            'Maya Chen': 'Ananya Iyer',
+            'Jordan Ruiz': 'Arjun Mehta',
+            'Sam Okafor': 'Rohan Kapoor',
+            'Theo Brandt': 'Divya Deshmukh',
+          }
+          state = {
+            ...state,
+            leads: (state.leads ?? []).map((lead) => ({
+              ...lead,
+              owner: OWNER_RENAME[lead.owner] ?? lead.owner,
+            })),
+            segments: (state.segments ?? []).map((segment) => ({
+              ...segment,
+              rules: segment.rules.map((rule) =>
+                rule.field === 'owner'
+                  ? {
+                      ...rule,
+                      value: rule.value
+                        .split(',')
+                        .map((v) => OWNER_RENAME[v] ?? v)
+                        .join(','),
+                    }
+                  : rule,
+              ),
+            })),
           }
         }
         return state as CrmState

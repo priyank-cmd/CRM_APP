@@ -6,17 +6,17 @@ export function TrendLineChart({ data }: { data: MonthPoint[] }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
-        <CartesianGrid vertical={false} stroke="#e1e0d9" />
+        <CartesianGrid vertical={false} stroke="var(--color-hairline)" />
         <XAxis
           dataKey="label"
           tickLine={false}
           axisLine={false}
-          tick={{ fill: '#8b8f96', fontSize: 12 }}
+          tick={{ fill: 'var(--color-ink-mute)', fontSize: 12 }}
         />
         <YAxis
           tickLine={false}
           axisLine={false}
-          tick={{ fill: '#8b8f96', fontSize: 12 }}
+          tick={{ fill: 'var(--color-ink-mute)', fontSize: 12 }}
           width={32}
           allowDecimals={false}
         />
@@ -25,11 +25,11 @@ export function TrendLineChart({ data }: { data: MonthPoint[] }) {
           type="monotone"
           dataKey="count"
           name="New leads"
-          stroke="#2a78d6"
+          stroke="var(--color-series-blue)"
           strokeWidth={2}
-          fill="#2a78d6"
-          fillOpacity={0.08}
-          dot={{ r: 3, strokeWidth: 0, fill: '#2a78d6' }}
+          fill="var(--color-series-blue)"
+          fillOpacity={0.12}
+          dot={{ r: 3, strokeWidth: 0, fill: 'var(--color-series-blue)' }}
           activeDot={{ r: 5, strokeWidth: 0 }}
         />
       </AreaChart>

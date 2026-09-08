@@ -1,6 +1,13 @@
 import { initials } from '../../lib/format'
 
-const PALETTE = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#4a3aa7']
+const PALETTE = [
+  'var(--color-series-blue)',
+  'var(--color-series-orange)',
+  'var(--color-series-aqua)',
+  'var(--color-series-yellow)',
+  'var(--color-series-magenta)',
+  'var(--color-series-violet)',
+]
 
 function colorFor(name: string): string {
   let hash = 0
