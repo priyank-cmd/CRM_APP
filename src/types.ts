@@ -44,6 +44,9 @@ export interface Lead {
   lastActivity: string
   notes: string
   customFields: Record<string, string | number | boolean>
+  // Which form this lead came from, if any — undefined for manually-added
+  // or CSV-imported leads.
+  sourceFormId?: string
 }
 
 export const OWNERS = [
@@ -78,4 +81,36 @@ export interface Segment {
   id: string
   name: string
   rules: SegmentRule[]
+}
+
+// Forms: a designed set of fields that, on submission, create a Lead.
+// Name and Company are always present (Lead requires both), so a form's
+// own field list only covers the rest.
+export const STANDARD_FORM_FIELD_KEYS = ['title', 'email', 'phone', 'notes'] as const
+export type StandardFormFieldKey = (typeof STANDARD_FORM_FIELD_KEYS)[number]
+
+export type FormFieldSource =
+  | { kind: 'standard'; key: StandardFormFieldKey }
+  | { kind: 'custom'; propertyId: string }
+
+export interface FormField {
+  id: string
+  source: FormFieldSource
+  label: string
+  required: boolean
+}
+
+export const FORM_TYPES = ['Contact Us', 'Event', 'Webinar', 'Custom'] as const
+export type FormType = (typeof FORM_TYPES)[number]
+
+export interface FormDef {
+  id: string
+  name: string
+  type: FormType
+  description: string
+  fields: FormField[]
+  defaultStage: Stage
+  defaultSource: Source
+  defaultOwner: string
+  createdAt: string
 }

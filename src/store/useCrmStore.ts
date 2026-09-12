@@ -1,12 +1,13 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { generateMockLeads } from '../data/mockLeads'
-import type { Lead, PropertyDef, Segment, Stage } from '../types'
+import type { FormDef, Lead, PropertyDef, Segment, Stage } from '../types'
 
 interface CrmState {
   leads: Lead[]
   customProperties: PropertyDef[]
   segments: Segment[]
+  forms: FormDef[]
 
   addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastActivity'>) => void
   updateLead: (id: string, patch: Partial<Lead>) => void
@@ -22,6 +23,10 @@ interface CrmState {
   addSegment: (segment: Segment) => void
   updateSegment: (id: string, patch: Partial<Segment>) => void
   deleteSegment: (id: string) => void
+
+  addForm: (form: FormDef) => void
+  updateForm: (id: string, patch: Partial<FormDef>) => void
+  deleteForm: (id: string) => void
 }
 
 function newId() {
@@ -38,6 +43,7 @@ export const useCrmStore = create<CrmState>()(
       leads: generateMockLeads(),
       customProperties: [],
       segments: [],
+      forms: [],
 
       addLead: (lead) =>
         set((state) => ({
@@ -111,14 +117,24 @@ export const useCrmStore = create<CrmState>()(
 
       deleteSegment: (id) =>
         set((state) => ({ segments: state.segments.filter((s) => s.id !== id) })),
+
+      addForm: (form) => set((state) => ({ forms: [...state.forms, form] })),
+
+      updateForm: (id, patch) =>
+        set((state) => ({
+          forms: state.forms.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+        })),
+
+      deleteForm: (id) => set((state) => ({ forms: state.forms.filter((f) => f.id !== id) })),
     }),
     {
       name: 'leadspot-crm-data',
-      version: 4,
+      version: 5,
       // v1 -> v2: deal values moved from USD to INR magnitude.
       // v2 -> v3: leads gained customFields; store gained customProperties/segments.
       // v3 -> v4: sales rep roster renamed — remap existing owner references
       // in place rather than regenerating, so real edits/imports survive.
+      // v4 -> v5: store gained forms.
       migrate: (persisted, version) => {
         let state = persisted as Partial<CrmState> & { leads?: Lead[] }
         if (version < 2) {
@@ -162,6 +178,12 @@ export const useCrmStore = create<CrmState>()(
                   : rule,
               ),
             })),
+          }
+        }
+        if (version < 5) {
+          state = {
+            ...state,
+            forms: state.forms ?? [],
           }
         }
         return state as CrmState

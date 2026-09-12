@@ -1,4 +1,4 @@
-import { Radar, Rows3, TrendingUp } from 'lucide-react'
+import { FileText, Radar, Rows3, TrendingUp } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useCrmStore } from '../../store/useCrmStore'
 import { computeKpis } from '../../lib/analytics'
@@ -8,6 +8,7 @@ import { ThemeToggle } from '../ui/ThemeToggle'
 const NAV_ITEMS = [
   { to: '/leads', label: 'Leads', icon: Rows3 },
   { to: '/pipeline', label: 'Pipeline', icon: TrendingUp },
+  { to: '/forms', label: 'Forms', icon: FileText },
   { to: '/analytics', label: 'Analytics', icon: Radar },
 ]
 
