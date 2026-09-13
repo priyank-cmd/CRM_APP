@@ -1,13 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { generateMockLeads } from '../data/mockLeads'
-import type { FormDef, Lead, PropertyDef, Segment, Stage } from '../types'
+import { deleteFile } from '../lib/fileStore'
+import type { FormDef, Lead, LeadDocument, PropertyDef, Segment, Stage } from '../types'
 
 interface CrmState {
   leads: Lead[]
   customProperties: PropertyDef[]
   segments: Segment[]
   forms: FormDef[]
+  documents: LeadDocument[]
 
   addLead: (lead: Omit<Lead, 'id' | 'createdAt' | 'lastActivity'>) => void
   updateLead: (id: string, patch: Partial<Lead>) => void
@@ -27,6 +29,9 @@ interface CrmState {
   addForm: (form: FormDef) => void
   updateForm: (id: string, patch: Partial<FormDef>) => void
   deleteForm: (id: string) => void
+
+  addDocumentMeta: (doc: LeadDocument) => void
+  deleteDocumentMeta: (id: string) => void
 }
 
 function newId() {
@@ -44,6 +49,7 @@ export const useCrmStore = create<CrmState>()(
       customProperties: [],
       segments: [],
       forms: [],
+      documents: [],
 
       addLead: (lead) =>
         set((state) => ({
@@ -73,9 +79,14 @@ export const useCrmStore = create<CrmState>()(
         })),
 
       deleteLead: (id) =>
-        set((state) => ({
-          leads: state.leads.filter((lead) => lead.id !== id),
-        })),
+        set((state) => {
+          const orphaned = state.documents.filter((d) => d.leadId === id)
+          orphaned.forEach((d) => void deleteFile(d.id))
+          return {
+            leads: state.leads.filter((lead) => lead.id !== id),
+            documents: state.documents.filter((d) => d.leadId !== id),
+          }
+        }),
 
       importLeads: (leads) =>
         set((state) => ({
@@ -126,15 +137,24 @@ export const useCrmStore = create<CrmState>()(
         })),
 
       deleteForm: (id) => set((state) => ({ forms: state.forms.filter((f) => f.id !== id) })),
+
+      addDocumentMeta: (doc) => set((state) => ({ documents: [...state.documents, doc] })),
+
+      deleteDocumentMeta: (id) =>
+        set((state) => {
+          void deleteFile(id)
+          return { documents: state.documents.filter((d) => d.id !== id) }
+        }),
     }),
     {
       name: 'leadspot-crm-data',
-      version: 5,
+      version: 6,
       // v1 -> v2: deal values moved from USD to INR magnitude.
       // v2 -> v3: leads gained customFields; store gained customProperties/segments.
       // v3 -> v4: sales rep roster renamed — remap existing owner references
       // in place rather than regenerating, so real edits/imports survive.
       // v4 -> v5: store gained forms.
+      // v5 -> v6: store gained document metadata (file bytes live in IndexedDB).
       migrate: (persisted, version) => {
         let state = persisted as Partial<CrmState> & { leads?: Lead[] }
         if (version < 2) {
@@ -184,6 +204,12 @@ export const useCrmStore = create<CrmState>()(
           state = {
             ...state,
             forms: state.forms ?? [],
+          }
+        }
+        if (version < 6) {
+          state = {
+            ...state,
+            documents: state.documents ?? [],
           }
         }
         return state as CrmState

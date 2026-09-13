@@ -3,6 +3,7 @@ import { X, Trash2 } from 'lucide-react'
 import { useCrmStore } from '../../store/useCrmStore'
 import { OWNERS, SOURCES, STAGES, type Lead, type Source, type Stage } from '../../types'
 import { formatDate } from '../../lib/format'
+import { LeadDocuments } from './LeadDocuments'
 
 interface LeadDrawerProps {
   lead: Lead | null
@@ -328,6 +329,8 @@ export function LeadDrawer({ lead, defaultStage, open, onClose }: LeadDrawerProp
               })}
             </div>
           )}
+
+          {lead && <LeadDocuments leadId={lead.id} />}
 
           {lead && (
             <div className="rounded-md bg-paper px-3 py-2 text-xs text-ink-mute">

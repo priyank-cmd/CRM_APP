@@ -114,3 +114,17 @@ export interface FormDef {
   defaultOwner: string
   createdAt: string
 }
+
+// Document metadata lives here (small, JSON-serializable); the actual file
+// bytes live in IndexedDB (see lib/fileStore.ts) — localStorage's ~5-10MB
+// quota is shared by the whole app and would be blown by a couple of PDFs.
+export const MAX_DOCUMENT_SIZE_BYTES = 20 * 1024 * 1024 // 20MB per file
+
+export interface LeadDocument {
+  id: string
+  leadId: string
+  name: string
+  size: number
+  mimeType: string
+  uploadedAt: string
+}

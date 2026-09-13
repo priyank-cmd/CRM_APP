@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Download, Plus, Search, Settings2, Upload } from 'lucide-react'
+import { Download, Paperclip, Plus, Search, Settings2, Upload } from 'lucide-react'
 import { AppShell } from '../components/layout/AppShell'
 import { StageBadge } from '../components/ui/StageBadge'
 import { Avatar } from '../components/ui/Avatar'
@@ -20,6 +20,7 @@ export function LeadsPage() {
   const leads = useCrmStore((s) => s.leads)
   const customProperties = useCrmStore((s) => s.customProperties)
   const segments = useCrmStore((s) => s.segments)
+  const documents = useCrmStore((s) => s.documents)
 
   const [query, setQuery] = useState('')
   const [stageFilter, setStageFilter] = useState<string>('All')
@@ -36,6 +37,11 @@ export function LeadsPage() {
   const [importOpen, setImportOpen] = useState(false)
 
   const fields = useMemo(() => getAllFields(customProperties), [customProperties])
+  const documentCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    for (const doc of documents) counts[doc.leadId] = (counts[doc.leadId] ?? 0) + 1
+    return counts
+  }, [documents])
   const activeSegment = segments.find((s) => s.id === activeSegmentId) ?? null
 
   const filtered = useMemo(() => {
@@ -180,7 +186,14 @@ export function LeadsPage() {
                 className="cursor-pointer border-b border-hairline last:border-0 hover:bg-paper"
               >
                 <td className="px-5 py-3.5">
-                  <div className="font-medium text-ink">{lead.name}</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium text-ink">{lead.name}</span>
+                    {documentCounts[lead.id] > 0 && (
+                      <span className="flex items-center gap-0.5 text-xs text-ink-mute" title="Documents attached">
+                        <Paperclip size={11} /> {documentCounts[lead.id]}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-xs text-ink-mute">{lead.title}</div>
                 </td>
                 <td className="px-5 py-3.5 text-ink-soft">{lead.company}</td>
